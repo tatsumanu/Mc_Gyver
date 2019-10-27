@@ -8,11 +8,13 @@ class Player:
         takes events from pygame and check wether the player
         can move in this direction or not """
 
-    def __init__(self, x, y, image, sprite=32, object=[]):
+    def __init__(self, x, y, image, sprite=32, object=[], alive=1, kill_the_guardian=False):
         self.x = x * sprite
         self.y = y * sprite
         self.image = image
         self.object = []
+        self.alive = alive
+        self.kill_the_guardian = kill_the_guardian
 
     def move(self, old_pos, new_pos, map):
         if map.is_obstacle(new_pos):
@@ -20,6 +22,15 @@ class Player:
         else:
             self.x, self.y = new_pos
         return self.x, self.y
+
+    def facing_the_end(self, new_pos):
+        if new_pos == (14*32, 14*32):
+            if len(self.object) > 2:
+                self.alive = 0
+                self.kill_the_guardian = True
+            else:
+                self.alive = 0
+        return self.alive, self.kill_the_guardian
 
 
 class Map:
@@ -56,6 +67,9 @@ class Map:
 
 
 class Object:
+
+    """ Object class attributes. Prints object before the player
+    collect them """
 
     def __init__(self, name, image, x=0, y=0):
         self.name = name
