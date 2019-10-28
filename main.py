@@ -1,9 +1,8 @@
 import pygame
 import os
 from pygame.locals import *
-from fonctions import load_image, create_a_text_object, message
+from fonctions import load_image, create_a_text_object, message, victory
 from classes import Player, Map, Object
-
 
 pygame.init()
 
@@ -17,10 +16,9 @@ play_game = True
 window = pygame.display.set_mode((480, 480))
 pygame.display.set_caption('Mac Gyver et le labyrinthe infernal!')
 
-
 # loading images
 floor, wall = load_image('floor.png'), load_image('wall.png')
-seringue = load_image('seringue.png')
+syringe = load_image('seringue.png')
 intro = load_image('macgyver.jpg')
 
 # creating player class object
@@ -30,13 +28,13 @@ guardian = Player(14, 14, load_image('Gardien.png'))
 # creating map class object
 map = Map(0, 0, mc_gyver)
 
-# creating elements of the object class
-aiguille = Object('aiguille', load_image('aiguille.png'), 6, 4)
-tube = Object('tube', load_image('tube_plastique.png'), 5, 9)
-ether = Object('ether', load_image('ether.png'), 13, 5)
-
 # loading the map
 map.loading()
+
+# creating elements of the object class
+aiguille = Object('aiguille', load_image('aiguille.png'), map)
+tube = Object('tube', load_image('tube_plastique.png'), map)
+ether = Object('ether', load_image('ether.png'), map)
 
 # main loop
 while play_game:
@@ -80,11 +78,11 @@ while play_game:
                     new_pos = (mc_gyver.x + sprite, mc_gyver.y)
                     mc_gyver.move(old_pos, new_pos, map)
 
-        # Printing the floor, walls, Mc Gyver, guardian and objects to the screen
+        # Printing the floor, walls, Mc Gyver, guardian and objects
         window.blit(floor, (0, 0))
-        map.walling_the_lab(window, wall)
-        window.blit(mc_gyver.image, (mc_gyver.x, mc_gyver.y))
+        [window.blit(wall, pos) for pos in list(map.wall_pos)]
         window.blit(guardian.image, (guardian.x, guardian.y))
+        window.blit(mc_gyver.image, (mc_gyver.x, mc_gyver.y))
         ether.print_object(window, mc_gyver)
         aiguille.print_object(window, mc_gyver)
         tube.print_object(window, mc_gyver)
@@ -96,7 +94,7 @@ while play_game:
         pygame.display.update()
 
     if mc_gyver.kill_the_guardian is True:
-        message('YOU WIN !', window)
+        victory(window, syringe)
     else:
         message('GAME OVER !', window)
 

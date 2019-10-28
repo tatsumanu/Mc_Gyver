@@ -1,5 +1,5 @@
 import pygame
-from random import randrange
+from random import choice
 
 
 class Player:
@@ -38,28 +38,30 @@ class Map:
     """ Map class attributes, defines the lab map, the position of the
     walls, the objects... """
 
-    def __init__(self, x, y, player, grid=[], sprite=32):
+    def __init__(self, x, y, player, grid=[], wall_pos={}, free_space={}):
         self.x = x
         self.y = y
         self.grid = grid
+        self.wall_pos = wall_pos
         self.player = player
-        self.sprite = sprite
+        self.free_space = {}
 
     def loading(self):
         with open('map.txt', 'r') as text_map:
             text_map_read = text_map.read()
         self.grid = [[self.y for self.y in self.x] for self.x in (text_map_read.split('\n'))]
-        return self.grid
-
-    def walling_the_lab(self, window, wall):
         for i in range(15):
             for j in range(15):
                 if self.grid[i][j] == 'x':
-                    window.blit(wall, (i*self.sprite, j*self.sprite))
+                    if (i, j) not in self.wall_pos:
+                        self.wall_pos[(i*32, j*32)] = 1
+                if self.grid[i][j] == ' ':
+                    if (i, j) not in self.free_space:
+                        self.free_space[(i*32, j*32)] = 1
 
     def is_obstacle(self, new_pos):
         a, b = new_pos
-        self.player.x, self.player.y = a // self.sprite, b // self.sprite
+        self.player.x, self.player.y = a // 32, b // 32
         if self.player.x < 0 or self.player.x > 14 or self.player.y < 0 or self.player.y > 14:
             return True
         elif self.grid[self.player.x][self.player.y] == 'x':
@@ -71,10 +73,10 @@ class Object:
     """ Object class attributes. Prints object before the player
     collect them """
 
-    def __init__(self, name, image, x=0, y=0):
+    def __init__(self, name, image, map, x=0, y=0):
         self.name = name
-        self.x = x * 32
-        self.y = y * 32
+        self.map = map
+        self.x, self.y = choice(list(map.free_space))
         self.image = image
 
     def print_object(self, window, player):
